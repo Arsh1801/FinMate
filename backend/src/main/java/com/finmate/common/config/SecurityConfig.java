@@ -1,3 +1,4 @@
+
 package com.finmate.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,9 +22,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Configuration
@@ -33,17 +33,19 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
-    private final CorsFilter corsFilter;
     private final ObjectMapper objectMapper;
+    private final CorsConfigurationSource corsConfigurationSource;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter,
-                          CustomUserDetailsService userDetailsService,
-                          CorsFilter corsFilter,
-                          ObjectMapper objectMapper) {
+    public SecurityConfig(
+            JwtAuthFilter jwtAuthFilter,
+            CustomUserDetailsService userDetailsService,
+            ObjectMapper objectMapper,
+            CorsConfigurationSource corsConfigurationSource) {
+
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
-        this.corsFilter = corsFilter;
         this.objectMapper = objectMapper;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
@@ -60,24 +62,36 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
             .csrf(csrf -> csrf.disable())
-            .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            .cors(cors ->
+                cors.configurationSource(corsConfigurationSource)
+            )
+
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+
             .headers(headers -> headers
                 .contentTypeOptions(ct -> {})
                 .cacheControl(cc -> {})
             )
+
             .exceptionHandling(exceptions -> exceptions
+
                 .authenticationEntryPoint((request, response, authEx) -> {
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
                     ErrorResponse err = new ErrorResponse(
                             401,
                             ErrorCode.UNAUTHENTICATED.name(),
@@ -86,11 +100,14 @@ public class SecurityConfig {
                             UUID.randomUUID().toString(),
                             null
                     );
+
                     objectMapper.writeValue(response.getOutputStream(), err);
                 })
+
                 .accessDeniedHandler((request, response, accessEx) -> {
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
                     ErrorResponse err = new ErrorResponse(
                             403,
                             ErrorCode.ACCESS_DENIED.name(),
@@ -99,11 +116,15 @@ public class SecurityConfig {
                             UUID.randomUUID().toString(),
                             null
                     );
+
                     objectMapper.writeValue(response.getOutputStream(), err);
                 })
             )
+
             .authorizeHttpRequests(auth -> auth
+
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                 .requestMatchers(
                     "/api/v1/auth/register",
                     "/api/v1/auth/login",
@@ -115,12 +136,18 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/api-docs/**"
                 ).permitAll()
+
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
                 .anyRequest().authenticated()
             );
 
         http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.addFilterBefore(
+                jwtAuthFilter,
+                UsernamePasswordAuthenticationFilter.class
+        );
 
         return http.build();
     }
