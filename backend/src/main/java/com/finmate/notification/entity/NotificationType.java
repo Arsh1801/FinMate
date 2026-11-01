@@ -1,0 +1,14 @@
+package com.finmate.notification.entity;
+
+public enum NotificationType {
+    BUDGET_WARNING,
+    BUDGET_EXCEEDED,
+    GOAL_REMINDER,
+    GOAL_COMPLETED,
+    GROUP_INVITATION,
+    GROUP_EXPENSE,
+    SETTLEMENT_PENDING,
+    SETTLEMENT_RESULT,
+    SETTLEMENT_REMINDER,
+    RECURRING_CREATED
+}

@@ -1,0 +1,775 @@
+{
+	"info": {
+		"_postman_id": "e30f14a1-8d2a-412f-bcfb-4a5f4f89d023",
+		"name": "FinMate API Collection",
+		"description": "Production-grade REST API collection for FinMate – Smart Personal Finance & Expense Management Platform. Includes full request schemas, automated JWT Bearer auth token extraction, and worked example validation.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Login (Demo User - Riya)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var data = pm.response.json();",
+									"    pm.collectionVariables.set('token', data.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', data.refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"demo@finmate.local\",\n  \"password\": \"DemoPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login (Admin User)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var data = pm.response.json();",
+									"    pm.collectionVariables.set('adminToken', data.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@finmate.local\",\n  \"password\": \"AdminPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Register New User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Kavita Roy\",\n  \"email\": \"kavita@example.com\",\n  \"password\": \"KavitaPass123!\",\n  \"currencyCode\": \"INR\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Refresh Access Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "refresh"]
+						}
+					}
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"demo@finmate.local\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "auth", "forgot-password"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Dashboard & Insights",
+			"item": [
+				{
+					"name": "Get Dashboard Summary KPIs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/summary?period=this_month",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "summary"],
+							"query": [
+								{
+									"key": "period",
+									"value": "this_month"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Monthly Cash Flow Bar Data (6 Months)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/monthly-bar?months=6",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "monthly-bar"],
+							"query": [
+								{
+									"key": "months",
+									"value": "6"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Category Distribution Donut Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/category-donut",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "category-donut"]
+						}
+					}
+				},
+				{
+					"name": "Get Daily Spending Velocity Line Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/spending-trend?days=30",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "spending-trend"],
+							"query": [
+								{
+									"key": "days",
+									"value": "30"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Active Budget Mini Bars",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/budget-bars",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "budget-bars"]
+						}
+					}
+				},
+				{
+					"name": "Get Smart Automated Insights",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/insights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "insights"]
+						}
+					}
+				},
+				{
+					"name": "Get Group Debt Net Summary Widget",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/dashboard/group-summary",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "dashboard", "group-summary"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Transactions",
+			"item": [
+				{
+					"name": "List Filtered Transactions (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/transactions?page=0&size=20&sort=transactionDate,desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "transactions"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								},
+								{
+									"key": "sort",
+									"value": "transactionDate,desc"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Personal Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"EXPENSE\",\n  \"amount\": 350.00,\n  \"categoryId\": 5,\n  \"transactionDate\": \"2026-10-31\",\n  \"description\": \"Blue Tokai Coffee & Croissant\",\n  \"paymentMethod\": \"UPI\",\n  \"notes\": \"Work session meeting\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/transactions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "transactions"]
+						}
+					}
+				},
+				{
+					"name": "Export Filtered Transactions to CSV",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/transactions/export",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "transactions", "export"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Recurring Rules",
+			"item": [
+				{
+					"name": "List Recurring Rules",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/recurring-rules",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "recurring-rules"]
+						}
+					}
+				},
+				{
+					"name": "Create Monthly Subscription Rule",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"EXPENSE\",\n  \"amount\": 649.00,\n  \"categoryId\": 15,\n  \"frequency\": \"MONTHLY\",\n  \"startDate\": \"2026-11-01\",\n  \"description\": \"Netflix 4K Ultra Plan\",\n  \"paymentMethod\": \"CREDIT_CARD\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/recurring-rules",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "recurring-rules"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Budgets & Alerting",
+			"item": [
+				{
+					"name": "Get Monthly Budgets with Utilization",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/budgets?year=2026&month=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "budgets"],
+							"query": [
+								{
+									"key": "year",
+									"value": "2026"
+								},
+								{
+									"key": "month",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Category Budget (PRD Worked Example)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"budgetYear\": 2026,\n  \"budgetMonth\": 11,\n  \"categoryId\": 5,\n  \"limitAmount\": 6000.00,\n  \"alertThreshold\": 80\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/budgets",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "budgets"]
+						}
+					}
+				},
+				{
+					"name": "Copy Budgets From Prior Month",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fromYear\": 2026,\n  \"fromMonth\": 10,\n  \"toYear\": 2026,\n  \"toMonth\": 12\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/budgets/copy",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "budgets", "copy"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Savings Goals",
+			"item": [
+				{
+					"name": "List Savings Goals",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/goals",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "goals"]
+						}
+					}
+				},
+				{
+					"name": "Record Goal Contribution with Balance Check",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 5000.00,\n  \"contributionDate\": \"2026-10-31\",\n  \"note\": \"Diwali bonus addition\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/goals/1/contributions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "goals", "1", "contributions"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Groups & Debt Minimization",
+			"item": [
+				{
+					"name": "List Active Groups",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/groups",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "groups"]
+						}
+					}
+				},
+				{
+					"name": "Get Group Balances (Invariant Verified)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/groups/1/balances",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "groups", "1", "balances"]
+						}
+					}
+				},
+				{
+					"name": "Get Greedy Settlement Suggestions (PRD Section 6.4)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/groups/1/settlement-suggestions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "groups", "1", "settlement-suggestions"]
+						}
+					}
+				},
+				{
+					"name": "Record Debt Settlement Transfer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"payeeId\": 2,\n  \"amount\": 2333.32,\n  \"paymentMethod\": \"UPI\",\n  \"referenceNote\": \"Settling Goa dinner via GPay\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/groups/1/settlements",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "groups", "1", "settlements"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Reports & Documents",
+			"item": [
+				{
+					"name": "Get Monthly Report JSON",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reports/monthly?month=2026-10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "reports", "monthly"],
+							"query": [
+								{
+									"key": "month",
+									"value": "2026-10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Download Formatted OpenPDF Statement",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/reports/monthly/pdf?month=2026-10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "reports", "monthly", "pdf"],
+							"query": [
+								{
+									"key": "month",
+									"value": "2026-10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. External Live Rates",
+			"item": [
+				{
+					"name": "Fetch Live Rate (RestTemplate / WebClient)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/external/exchange-rate?base=USD&target=INR",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "external", "exchange-rate"],
+							"query": [
+								{
+									"key": "base",
+									"value": "USD"
+								},
+								{
+									"key": "target",
+									"value": "INR"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Admin Management",
+			"item": [
+				{
+					"name": "Get System Wide Metrics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "stats"]
+						}
+					}
+				},
+				{
+					"name": "List All Platform Users (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/users?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "admin", "users"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}
